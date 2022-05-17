@@ -1,0 +1,93 @@
+# This is a basic workflow to help you get started with Actions
+name: Blue-Green-strategy
+
+# Controls when the workflow will run
+on:
+ 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+ 
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+ 
+
+  setupminikube:
+  
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      # Set up minikube on the Github Runner
+      
+      - name: start minikube
+        id: minikube
+        uses: medyagh/setup-minikube@master
+      
+      # Check if cluster is up and running
+      - name: Get list of pods
+        run: kubectl get pods -A
+     
+  deployapp:
+  
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      
+      # Deploy BLUE to Prod
+      - name: Deploy to Prod - BLUE
+        run: |
+           kubectl apply -f kubernetes/blue-deploy.yaml
+           kubectl apply -f kubernetes/service.yaml
+     
+
+     # Check the pods
+       # Check if cluster is up and running
+      - name: Check pods in Prod
+        run: kubectl get pods -A
+        
+        
+     # Deploy GREEN to Prod
+      - name: Deploy to Prod - GREEN
+        run: |
+           kubectl apply -f kubernetes/green-deploy.yaml     
+
+     # Check the pods
+       # Check if cluster is up and running
+      - name: Check pods in Prod
+        run: kubectl get pods -A
+        
+     # Check the service label
+      - name: Verify service label
+        run: kubectl get service -o wide
+        
+  approveapp:
+    runs-on: ubuntu-latest
+    needs: deployapp
+    steps:
+      - run: echo 'approve?'
+
+  promotereject:
+  
+    runs-on: ubuntu-latest
+    needs: approveapp
+    
+    steps:
+      - uses: actions/checkout@v2
+    
+       # Route traffic to GREEN
+      - name: Route traffic to GREEN
+        if: ${{ success() }}
+        run: |
+           sed 's/1\.10/1.11/' kubernetes/service.yaml | kubectl apply -f -     
+     
+      
+       # Check the service label
+      - name: Verify service label
+        run: kubectl get service -o wide
+        
