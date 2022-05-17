@@ -47,8 +47,8 @@ jobs:
       # Deploy BLUE to Prod
       - name: Deploy to Prod - BLUE
         run: |
-           kubectl apply -f kubernetes/blue-deploy.yaml
-           kubectl apply -f kubernetes/service.yaml
+           kubectl apply -f ./kubernetes/blue-deploy.yaml
+           kubectl apply -f ./kubernetes/service.yaml
      
 
      # Check the pods
@@ -60,7 +60,7 @@ jobs:
      # Deploy GREEN to Prod
       - name: Deploy to Prod - GREEN
         run: |
-           kubectl apply -f kubernetes/green-deploy.yaml     
+           kubectl apply -f ./kubernetes/green-deploy.yaml     
 
      # Check the pods
        # Check if cluster is up and running
@@ -90,7 +90,7 @@ jobs:
       - name: Route traffic to GREEN
         if: ${{ success() }}
         run: |
-           sed 's/1\.10/1.11/' kubernetes/service.yaml | kubectl apply -f -     
+           sed 's/1\.10/1.11/' ./kubernetes/service.yaml | kubectl apply -f -     
      
       
        # Check the service label
