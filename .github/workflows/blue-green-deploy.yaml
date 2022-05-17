@@ -45,9 +45,9 @@ jobs:
           namespace: default
           manifests: |
             ./kubernetes/service.yaml
-            ./kubernetes/green-deploy.yaml
+            ./kubernetes/blue-deploy.yaml
           images: |
-            demogaurav.azurecr.io/green-nginx:1
+            demogaurav.azurecr.io/blue-nginx:1
           strategy: blue-green
           traffic-split-method: pod
           action: deploy  #deploy is the default; we will later use this to promote/reject
@@ -55,7 +55,7 @@ jobs:
 
      # Check the pods
        # Check if cluster is up and running
-      - name: Check pods in Prod - GREEN
+      - name: Check pods in Prod - BLUE
         run: kubectl get pods -A
         
   approveapp:
@@ -81,7 +81,7 @@ jobs:
           namespace: default
           manifests: |
             ./kubernetes/service.yaml
-            ./kubernetes/deploy.yaml
+            ./kubernetes/green-deploy.yaml
           images: |
             demogaurav.azurecr.io/green-nginx:1
           strategy: blue-green
@@ -90,7 +90,7 @@ jobs:
 
       
        # Check the pods
-      - name: Pods post Promote (APPROVE) - GREEN
+      - name: Pods post Promote (APPROVE)
         run: kubectl get pods -A
         
         
@@ -101,7 +101,7 @@ jobs:
           namespace: default
           manifests: |
             ./kubernetes/service.yaml
-            ./kubernetes/deploy.yaml
+            ./kubernetes/blue-deploy.yaml
           images: |
             demogaurav.azurecr.io/blue-nginx:1
           strategy: blue-green
@@ -110,5 +110,5 @@ jobs:
           
           
         # Check the pods
-      - name: Pods post Reject (REJECT) - BLUE
+      - name: Pods post Reject (REJECT)
         run: kubectl get pods -A
