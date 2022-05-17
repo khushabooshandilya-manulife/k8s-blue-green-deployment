@@ -15,7 +15,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
+  name: nginx-deployment-green
 spec:
   replicas: 3
   selector:
@@ -41,3 +41,4 @@ spec:
             limits:
               cpu: 500m
               memory: 500Mi
+-blue
